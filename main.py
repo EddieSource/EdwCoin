@@ -15,6 +15,7 @@ class Blockchain:
         self.chain = []     # this is the main blockchain
         self.transactions = []  # this is the transaction list to be included in the current block
         self.create_block(proof=1, previous_hash='0')
+        self.nodes = set()  # initialize an empty set for nodes for distribution purposes
 
     def create_block(self, proof, previous_hash):
         block = {'index': len(self.chain) + 1,
@@ -53,14 +54,14 @@ class Blockchain:
         block_index = 1
         while block_index < len(chain):
             curr_block = chain[block_index]
-            #check if the previous_hash key of the current block equals to the previous block hash
+            # check if the previous_hash key of the current block equals to the previous block hash
             if curr_block['previous_hash'] != self.hash(previous_block):
                 return False
             # check if the current proof of work reaches the target
             previous_proof = previous_block['proof']
             curr_proof = curr_block['proof']
             hash_operation = hashlib.sha256(str(curr_proof ** 2 - previous_proof ** 2).encode()).hexdigest()
-            #hash_operation = self.hash(curr_block)
+            # hash_operation = self.hash(curr_block)
             if hash_operation[:4] != '0000':
                 return False
             previous_block = curr_block
@@ -76,4 +77,10 @@ class Blockchain:
                                   'amount': amount})
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
+
+    # take address of the node; e.g. 'http://127.0.0.1:5000/'
+    def add_node(self, address):
+        # url will return the parse of the address
+        parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc)   # the url including the port, '127.0.0.1:5000' for example
 
