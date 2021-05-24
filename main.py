@@ -84,3 +84,56 @@ class Blockchain:
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)   # the url including the port, '127.0.0.1:5000' for example
 
+    # replace longer chain for a shorter chain
+    def replace_chain(self):
+        network = self.nodes
+        longest_chain = None
+        max_length = len(self.chain)
+        for node in network:
+            # get chain from all nodes from the network
+            # response = requests.get('http://127.0.0.1:5000/get_chain')
+            response = requests.get('http://{node}/get_chain')
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                # if any other chain that is longer than current chain
+                # replace the current chain with that longest chain
+                if length > max_length and self.is_chain_valid(chain):
+                    max_length = length
+                    longest_chain = chain
+            # if longest chain is not none, replace and return true
+            if longest_chain:
+                self.chain = longest_chain
+                return True
+            return False
+
+
+#part 2 - Mining our Blockchain
+
+# Creating a Web App based on Flask
+app = Flask(__name__)
+# app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+blockchain = Blockchain()
+
+
+# getting the full Blockchain
+@app.route('/get_chain', methods=["GET"])
+def get_chain():
+    response = {'chain': blockchain.chain,
+                'length': len(blockchain.chain)}
+    return jsonify(response), 200
+
+
+@app.route('/is_valid', methods=["GET"])
+def is_valid():
+    valid = blockchain.is_chain_valid(blockchain.chain)
+    if valid:
+        response = {'message': 'All good. The Blockchain is valid.'}
+    else:
+        response = {'message': 'Problem occurs. Blockchain is NOT valid'}
+
+    return jsonify(response), 200
+
+# part3 - decentralizing our blockchain
+
+
