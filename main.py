@@ -5,7 +5,7 @@ import hashlib
 import json
 from flask import Flask, jsonify, request
 import requests
-from uuid import uuid4
+from uuid import uuid4  # generate random uuid
 from urllib.parse import urlparse
 
 # part 1 - build a blockchain
@@ -112,8 +112,41 @@ class Blockchain:
 
 # Creating a Web App based on Flask
 app = Flask(__name__)
+
+# Create an address for the node on this port
+node_address = str(uuid4()).replace('-', '')
+
 # app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 blockchain = Blockchain()
+
+
+# CRUD get method
+@app.route('/mine_block', methods=["GET"])
+def mine_block():
+    prev_block = blockchain.get_previous_block()
+    prev_proof = prev_block['proof']
+
+    # main mining work: find the expected_proof
+    curr_proof = blockchain.proof_of_work(prev_proof)
+
+    # create and add the correctly mined block to our chain
+    prev_hash = blockchain.hash(prev_block)
+
+    # give reward to the miner, the transaction fee
+    blockchain.add_transaction(sender=node_address, receiver='Edward', amount=1)
+
+    curr_block = blockchain.create_block(curr_proof, prev_hash)
+
+    # return a json object
+    response = {'message': 'Congratulations, you just mined a block!',
+                'index': curr_block['index'],
+                'timestamp': curr_block['timestamp'],
+                'proof': curr_block['proof'],
+                'prev_hash': curr_block['previous_hash'],
+                'transactions:': curr_block['transactions'],
+                }
+
+    return jsonify(response), 200   # demo on postman:200 means everything is ok
 
 
 # getting the full Blockchain
@@ -133,7 +166,4 @@ def is_valid():
         response = {'message': 'Problem occurs. Blockchain is NOT valid'}
 
     return jsonify(response), 200
-
-# part3 - decentralizing our blockchain
-
 
