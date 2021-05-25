@@ -92,7 +92,7 @@ class Blockchain:
         for node in network:
             # get chain from all nodes from the network
             # response = requests.get('http://127.0.0.1:5000/get_chain')
-            response = requests.get('http://{node}/get_chain')
+            response = requests.get(f'http://{node}/get_chain')
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -167,3 +167,22 @@ def is_valid():
 
     return jsonify(response), 200
 
+
+@app.route('/add_transaction', methods=['POST'])
+def add_transaction():
+    json = request.get_json()   # get the json file from postman
+    transaction_keys = ['sender', 'receiver', 'amount']
+    # if json file not include each key, return error
+    # all returns true if all items in an iterable returns true
+    if not all(key in json for key in transaction_keys):
+        return 'Missing components', 400
+    index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
+    response = {'message': f'This transaction will be added to Block {index}'}
+    return jsonify(response), 201
+
+
+# part3 - decentralizing our blockchain
+if __name__ == '__main__':
+    # Running the app on http://127.0.0.1:5000/
+    # use postman to test
+    app.run(host='0.0.0.0', port=5000)
