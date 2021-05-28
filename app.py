@@ -83,7 +83,7 @@ def connect_node():
         blockchain.add_node(node_addr)
     response = {'message': 'all the nodes are now connected, it contains the following nodes',
                 'total_nodes': list(blockchain.nodes)}
-    return response
+    return jsonify(response), 201
 
 
 # part3 - decentralizing our blockchain
