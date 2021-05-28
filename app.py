@@ -72,6 +72,19 @@ def add_transaction():
     response = {'message': f'This transaction will be added to Block {index}'}
     return jsonify(response), 201
 
+@app.route('/connect_node', methods=['POST'])
+def connect_node():
+    json = request.get_json()
+    # json = { "nodes": [http://127.0.0.1:5001, xxx, xxx] }
+    nodes = json.get('nodes')  # list of address of the nodes
+    if nodes is None:
+        return "No node", 400
+    for node_addr in nodes:
+        blockchain.add_node(node_addr)
+    response = {'message': 'all the nodes are now connected, it contains the following nodes',
+                'total_nodes': list(blockchain.nodes)}
+    return response
+
 
 # part3 - decentralizing our blockchain
 if __name__ == '__main__':
