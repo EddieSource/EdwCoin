@@ -1,4 +1,4 @@
-from coin import *
+from template_coin import *
 
 #part 2 - Mining our Blockchain
 
