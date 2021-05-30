@@ -75,6 +75,7 @@ def add_transaction():
 
 @app.route('/connect_node', methods=['POST'])
 def connect_node():
+    # in real world, this is called each time we add a node
     json = request.get_json()
     # json = { "nodes": [http://127.0.0.1:5001, xxx, xxx] }
     nodes = json.get('nodes')  # list of address of the nodes
