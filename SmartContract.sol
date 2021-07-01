@@ -57,6 +57,5 @@ contract hadcoin_ico {
     }
     
 }    
-    
-    
-}
+
+
